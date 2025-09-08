@@ -34,7 +34,7 @@ body {
 }
 
 .date {
-    font-size: 28px;
+    font-size: 32px;
     font-weight: 300;
     color: rgb(28,149,119);
     margin-bottom: 2px;
@@ -88,7 +88,7 @@ body {
 }
 
 .info-details .info-item {
-    font-size: 14px;
+    font-size: 16px;
 }
 
 .info-details .info-item:last-child {
@@ -132,6 +132,7 @@ body {
     padding: 0;
     background: none;
     display: block;
+    font-size: 18px;
 }
 
 .view-button {
@@ -172,7 +173,7 @@ body {
     }
     
     .date {
-          font-size: 26px;
+          font-size: 30px;
           font-weight: 400;
           margin-bottom: 1px;
       }
@@ -203,8 +204,8 @@ body {
     }
     
     .info-details .info-item {
-        font-size: 14px;
-    }
+         font-size: 16px;
+     }
     
     .info-item {
          margin-bottom: 12px;
@@ -217,9 +218,9 @@ body {
      }
      
      .personal-info .info-item {
-         margin-bottom: 8px;
-         font-size: 13px;
-     }
+          margin-bottom: 8px;
+          font-size: 16px;
+      }
     
     .view-button {
          width: 120px;
