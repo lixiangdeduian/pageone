@@ -187,7 +187,7 @@ body {
      
      .status-section {
          margin-top: -15px;
-         margin-bottom: 20px;
+         margin-bottom: 25px;
          gap: 6px;
      }
     
@@ -210,7 +210,7 @@ body {
      }
     
     .info-item {
-         margin-bottom: 12px;
+         margin-bottom: 16px;
          font-size: 13px;
      }
     
@@ -229,7 +229,7 @@ body {
          width: 120px;
          height: 36px;
          font-size: 14px;
-         margin-top: 30px;
+         margin-top: 50px;
          margin-bottom: 15px;
          background-color: rgb(152,38,43);
      }
