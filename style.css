@@ -12,7 +12,7 @@ body {
 }
 
 .container {
-    max-width: 350px;
+    max-width: 380px;
     margin: 0 auto;
     padding: 20px;
     background-color: #fff;
@@ -36,14 +36,14 @@ body {
 .date {
     font-size: 28px;
     font-weight: 300;
-    color: #2E7D32;
+    color: rgb(28,149,119);
     margin-bottom: 2px;
     letter-spacing: 1px;
 }
 
 .time {
     font-size: 18px;
-    color: #2E7D32;
+    color: rgb(28,149,119);
     font-weight: 300;
     margin-bottom: 0px;
 }
@@ -64,14 +64,14 @@ body {
 }
 
 .status-text {
-    font-size: 28px;
-    color: #2E7D32;
+    font-size: 30px;
+    color: rgb(28,149,119);
     font-weight: 400;
 }
 
 .main-info-section {
     border: 1px dashed #ccc;
-    border-radius: 6px;
+    border-radius: 0px;
     padding: 20px;
     margin-bottom: 20px;
     background-color: transparent;
@@ -128,10 +128,10 @@ body {
 .view-button {
     width: 200px;
     height: 44px;
-    background-color: #b71c1c;
+    background-color: rgb(152,38,43);
     color: white;
     border: none;
-    border-radius: 6px;
+    border-radius: 0px;
     font-size: 16px;
     font-weight: 500;
     cursor: pointer;
@@ -141,7 +141,7 @@ body {
 }
 
 .view-button:hover {
-    background-color: #b71c1c;
+    background-color: rgb(132,28,33);
 }
 
 .view-button:active {
@@ -152,22 +152,68 @@ body {
 /* 响应式设计 */
 @media (max-width: 480px) {
     .container {
-        padding: 15px;
+        max-width: 348px;
+        min-height: 300px;
+        padding: 12px 12px 20px 12px;
     }
     
-    .date {
-        font-size: 28px;
-    }
-    
-    .time {
-        font-size: 18px;
-    }
-    
-    .status-text {
+    .title {
+        margin-bottom: 15px;
         font-size: 16px;
     }
     
-    .info-section {
-        padding: 15px;
+    .date {
+          font-size: 26px;
+          font-weight: 400;
+          margin-bottom: 1px;
+      }
+     
+     .time {
+          font-size: 18px;
+          font-weight: 400;
+          margin-bottom: 0px;
+      }
+     
+     .status-section {
+         margin-top: -15px;
+         margin-bottom: 12px;
+         gap: 6px;
+     }
+    
+    .status-text {
+        font-size: 22px;
     }
+    
+    .main-info-section {
+         padding: 12px;
+         margin-bottom: 20px;
+     }
+    
+    .info-details {
+        margin-top: 12px;
+    }
+    
+    .info-item {
+         margin-bottom: 12px;
+         font-size: 13px;
+     }
+    
+    .personal-info {
+         margin-top: 30px;
+         margin-bottom: 20px;
+     }
+     
+     .personal-info .info-item {
+         margin-bottom: 8px;
+         font-size: 13px;
+     }
+    
+    .view-button {
+         width: 120px;
+         height: 36px;
+         font-size: 14px;
+         margin-top: 30px;
+         margin-bottom: 15px;
+         background-color: rgb(152,38,43);
+     }
 }
