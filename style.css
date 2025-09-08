@@ -34,10 +34,10 @@ body {
 }
 
 .date {
-    font-size: 32px;
+    font-size: 28px;
     font-weight: 300;
     color: rgb(28,149,119);
-    margin-bottom: 2px;
+    margin-bottom: 0px;
     letter-spacing: 1px;
 }
 
@@ -75,7 +75,7 @@ body {
     padding: 20px;
     margin-bottom: 20px;
     background-color: transparent;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
     /* 使用更细密的虚线 */
     border-style: dashed;
     border-width: 1px;
@@ -129,10 +129,10 @@ body {
 
 .personal-info .info-item {
     margin-bottom: 8px;
-    padding: 0;
+    padding: 0 0 0 15px;
     background: none;
     display: block;
-    font-size: 18px;
+    font-size: 16px;
 }
 
 .view-button {
@@ -173,9 +173,9 @@ body {
     }
     
     .date {
-          font-size: 30px;
+          font-size: 26px;
           font-weight: 400;
-          margin-bottom: 1px;
+          margin-bottom: -3px;
       }
      
      .time {
@@ -218,9 +218,10 @@ body {
      }
      
      .personal-info .info-item {
-          margin-bottom: 8px;
-          font-size: 16px;
-      }
+            margin-bottom: 8px;
+            font-size: 14px;
+            padding: 0 0 0 10px;
+        }
     
     .view-button {
          width: 120px;
