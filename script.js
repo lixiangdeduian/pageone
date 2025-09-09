@@ -14,7 +14,7 @@ function updateDateTime() {
     // 更新页面元素
     const dateElement = document.querySelector('.date');
     const timeElement = document.querySelector('.time');
-    const signinDateElement = document.querySelector('.info-section .value');
+    const signinDateElement = document.querySelector('.info-details .info-item .value');
     
     if (dateElement) {
         dateElement.textContent = dateString;
