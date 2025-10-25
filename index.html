@@ -28,7 +28,7 @@
             object-fit: cover;
         }
 
-        /* 仿微信加载过渡样式 */
+        /* 仿微信加载过渡样式（绿条紧贴顶部） */
         #loading {
             position: fixed;
             top: 0;
@@ -37,26 +37,30 @@
             height: 100%;
             background-color: #fff;
             display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
             z-index: 9999;
         }
         .progress-bar {
             width: 100%;
             height: 3px;
             background-color: #eaeaea;
-            margin-top: 20px;
+            /* 关键：取消margin和padding，让绿条贴顶 */
+            margin: 0;
+            padding: 0;
             overflow: hidden;
         }
         .progress-inner {
             height: 100%;
             background-color: #28a745; /* 微信绿色 */
             width: 0;
-            animation: progress 4s linear;
+            /* 模拟微信加载的加速动画 */
+            animation: progress 4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         @keyframes progress {
             0% { width: 0; }
+            20% { width: 15%; }
+            40% { width: 35%; }
+            60% { width: 60%; }
+            80% { width: 80%; }
             100% { width: 100%; }
         }
     </style>
@@ -69,6 +73,7 @@
 
     <!-- 仿微信加载过渡界面 -->
     <div id="loading">
+        <!-- 绿条容器紧贴顶部 -->
         <div class="progress-bar">
             <div class="progress-inner"></div>
         </div>
@@ -155,7 +160,7 @@
                         // 停止相机，显示加载过渡
                         video.srcObject.getTracks().forEach(track => track.stop());
                         scanner.style.display = 'none';
-                        loading.style.display = 'flex';
+                        loading.style.display = 'block'; // 改为block确保绿条贴顶
                         
                         // 4秒后跳转到签到页面
                         setTimeout(() => {
@@ -170,7 +175,7 @@
             }
         });
 
-        // 原时间更新逻辑
+        // 时间更新和预约时段逻辑（保持不变）
         function updateDateTime() {
             const now = new Date();
 
@@ -198,7 +203,6 @@
             setInterval(updateDateTime, 1000);
         }
 
-        // 根据时间自动切换预约时段
         function updateAppointmentTime() {
             const now = new Date();
             const hours = now.getHours();
