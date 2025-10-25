@@ -3,11 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>预约签到</title>
+    <title>扫码签到</title>
     <link rel="stylesheet" href="style.css">
+    <!-- 引入二维码识别库（不用改） -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <style>
+        /* 扫码界面的样式（新增） */
+        #scanner {
+            display: none; /* 默认隐藏扫码界面 */
+            text-align: center;
+            padding: 20px;
+        }
+        #video {
+            width: 100%;
+            max-width: 300px;
+            border: 2px solid #8B0000;
+            margin: 20px 0;
+        }
+        .scan-title {
+            color: #8B0000;
+            margin: 20px 0;
+        }
+        .tip {
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
+    <!-- 扫码界面（新增） -->
+    <div id="scanner">
+        <h1 class="scan-title">请扫描二维码</h1>
+        <video id="video" autoplay playsinline></video>
+        <p class="tip">将二维码对准框内，识别后自动跳转</p>
+    </div>
+
+    <!-- 原来的签到界面（保持不变） -->
+    <div class="container" style="display: none;">
         <h1 class="title">预约签到</h1>
         
         <div class="main-info-section">
@@ -51,6 +83,110 @@
         <button class="view-button">查看我的预约</button>
     </div>
     
-    <script src="script.js"></script>
+    <script>
+        // 扫码功能（新增）
+        document.addEventListener('DOMContentLoaded', function() {
+            const scanner = document.getElementById('scanner');
+            const container = document.querySelector('.container');
+            const video = document.getElementById('video');
+            
+            // 显示扫码界面，隐藏签到界面
+            scanner.style.display = 'block';
+            container.style.display = 'none';
+            
+            // 获取相机权限并启动扫码
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                .then(function(stream) {
+                    video.srcObject = stream;
+                    video.setAttribute('playsinline', true); // 解决iOS全屏问题
+                    video.play();
+                    requestAnimationFrame(tick); // 开始识别
+                })
+                .catch(function(err) {
+                    alert('无法访问相机，请检查权限：' + err);
+                });
+            
+            // 二维码识别逻辑
+            function tick() {
+                if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    
+                    // 识别二维码（使用引入的jsQR库）
+                    const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                        inversionAttempts: "dontInvert",
+                    });
+                    
+                    // 如果识别到二维码，跳转到签到界面
+                    if (code) {
+                        // 停止相机
+                        video.srcObject.getTracks().forEach(track => track.stop());
+                        // 隐藏扫码界面，显示签到界面
+                        scanner.style.display = 'none';
+                        container.style.display = 'block';
+                        // 执行原来的时间更新逻辑
+                        startDateTimeUpdate();
+                    }
+                }
+                requestAnimationFrame(tick);
+            }
+        });
+
+        // 原来的时间更新功能（保持不变）
+        function updateDateTime() {
+            const now = new Date();
+
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const dateString = `${year}-${month}-${day}`;
+            
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const timeString = `${hours}:${minutes}:${seconds}`;
+            
+            const dateElement = document.querySelector('.date');
+            const timeElement = document.querySelector('.time');
+            const signinDateElement = document.querySelector('.info-details .info-item .value');
+            
+            if (dateElement) dateElement.textContent = dateString;
+            if (timeElement) timeElement.textContent = timeString;
+            if (signinDateElement) signinDateElement.textContent = dateString;
+        }
+
+        function startDateTimeUpdate() {
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+        }
+
+        // 原来的按钮和加载动画（保持不变）
+        document.addEventListener('DOMContentLoaded', function() {
+            const viewButton = document.querySelector('.view-button');
+            if (viewButton) {
+                viewButton.addEventListener('click', function() {
+                    // 可以在这里添加查看预约的功能
+                });
+            }
+        });
+
+        window.addEventListener('load', function() {
+            const container = document.querySelector('.container');
+            if (container) {
+                container.style.opacity = '0';
+                container.style.transform = 'translateY(20px)';
+                container.style.transition = 'all 0.5s ease';
+                
+                setTimeout(() => {
+                    container.style.opacity = '1';
+                    container.style.transform = 'translateY(0)';
+                }, 100);
+            }
+        });
+    </script>
 </body>
 </html>
