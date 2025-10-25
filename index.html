@@ -5,40 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>扫码签到</title>
     <link rel="stylesheet" href="style.css">
-    <!-- 引入二维码识别库（不用改） -->
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <style>
-        /* 扫码界面的样式（新增） */
+        /* 全屏扫码样式（无文字、无多余界面） */
         #scanner {
-            display: none; /* 默认隐藏扫码界面 */
-            text-align: center;
-            padding: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000; /* 黑色背景突出扫码区域 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
         }
         #video {
             width: 100%;
-            max-width: 300px;
-            border: 2px solid #8B0000;
-            margin: 20px 0;
-        }
-        .scan-title {
-            color: #8B0000;
-            margin: 20px 0;
-        }
-        .tip {
-            color: #666;
-            font-size: 14px;
+            max-width: 100vw;
+            max-height: 100vh;
+            object-fit: contain;
         }
     </style>
 </head>
 <body>
-    <!-- 扫码界面（新增） -->
+    <!-- 全屏扫码界面 -->
     <div id="scanner">
-        <h1 class="scan-title">请扫描二维码</h1>
         <video id="video" autoplay playsinline></video>
-        <p class="tip">将二维码对准框内，识别后自动跳转</p>
     </div>
 
-    <!-- 原来的签到界面（保持不变） -->
+    <!-- 原来的签到界面 -->
     <div class="container" style="display: none;">
         <h1 class="title">预约签到</h1>
         
@@ -84,26 +80,20 @@
     </div>
     
     <script>
-        // 扫码功能（新增）
         document.addEventListener('DOMContentLoaded', function() {
             const scanner = document.getElementById('scanner');
             const container = document.querySelector('.container');
             const video = document.getElementById('video');
             
-            // 显示扫码界面，隐藏签到界面
-            scanner.style.display = 'block';
-            container.style.display = 'none';
-            
-            // 获取相机权限并启动扫码
+            // 启动相机扫码
             navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
                 .then(function(stream) {
                     video.srcObject = stream;
-                    video.setAttribute('playsinline', true); // 解决iOS全屏问题
                     video.play();
-                    requestAnimationFrame(tick); // 开始识别
+                    requestAnimationFrame(tick);
                 })
                 .catch(function(err) {
-                    alert('无法访问相机，请检查权限：' + err);
+                    alert('请允许相机权限以继续操作：' + err);
                 });
             
             // 二维码识别逻辑
@@ -116,19 +106,15 @@
                     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
                     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                     
-                    // 识别二维码（使用引入的jsQR库）
                     const code = jsQR(imageData.data, imageData.width, imageData.height, {
                         inversionAttempts: "dontInvert",
                     });
                     
-                    // 如果识别到二维码，跳转到签到界面
                     if (code) {
-                        // 停止相机
+                        // 停止相机并跳转
                         video.srcObject.getTracks().forEach(track => track.stop());
-                        // 隐藏扫码界面，显示签到界面
                         scanner.style.display = 'none';
                         container.style.display = 'block';
-                        // 执行原来的时间更新逻辑
                         startDateTimeUpdate();
                     }
                 }
@@ -136,7 +122,7 @@
             }
         });
 
-        // 原来的时间更新功能（保持不变）
+        // 原时间更新逻辑
         function updateDateTime() {
             const now = new Date();
 
@@ -164,12 +150,12 @@
             setInterval(updateDateTime, 1000);
         }
 
-        // 原来的按钮和加载动画（保持不变）
+        // 原按钮和加载动画逻辑
         document.addEventListener('DOMContentLoaded', function() {
             const viewButton = document.querySelector('.view-button');
             if (viewButton) {
                 viewButton.addEventListener('click', function() {
-                    // 可以在这里添加查看预约的功能
+                    // 可扩展查看预约功能
                 });
             }
         });
