@@ -16,12 +16,93 @@
         #scanner {
             width: 100%;
             height: 100%;
-            background-color: #000;
+            background-color: rgba(0, 0, 0, 0.85);
+            position: relative;
         }
         #video {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* 微信风格扫描框 */
+        .scan-frame {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 260px;
+            height: 260px;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            border: 2px solid rgba(7, 193, 96, 0.8); /* 微信绿框 */
+            box-sizing: border-box;
+        }
+        /* 扫描框四角 */
+        .scan-frame::before, .scan-frame::after, .scan-frame span::before, .scan-frame span::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background-color: #07c160;
+            z-index: 3;
+        }
+        .scan-frame::before { top: -2px; left: -2px; }
+        .scan-frame::after { top: -2px; right: -2px; }
+        .scan-frame span::before { bottom: -2px; left: -2px; }
+        .scan-frame span::after { bottom: -2px; right: -2px; }
+        .scan-frame span { display: block; }
+
+        /* 扫描线动画 */
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #07c160, transparent);
+            z-index: 3;
+            animation: scan 2s linear infinite;
+        }
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: calc(100% - 2px); }
+        }
+
+        /* 扫描区域外阴影 */
+        .scan-mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 2;
+            background: rgba(0, 0, 0, 0.5);
+            /* 中间镂空 */
+            clip-path: polygon(
+                0 0, 100% 0, 100% calc(50% - 130px), calc(50% - 130px) calc(50% - 130px),
+                calc(50% - 130px) calc(50% + 130px), 100% calc(50% + 130px), 100% 100%, 0 100%,
+                0 calc(50% + 130px), calc(50% + 130px) calc(50% + 130px),
+                calc(50% + 130px) calc(50% - 130px), 0 calc(50% - 130px)
+            );
+        }
+
+        /* 二维码识别成功标记 */
+        .qr-marker {
+            position: absolute;
+            border: 2px solid #07c160;
+            border-radius: 8px;
+            z-index: 4;
+            display: none;
+            animation: pulse 0.5s ease-in-out;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
         }
 
         /* 微信风格加载界面（2秒版） */
@@ -37,7 +118,7 @@
         }
         .progress-bar {
             width: 100%;
-            height: 2px; /* 微信进度条更细 */
+            height: 2px;
             background-color: #f0f0f0;
             margin: 0;
             padding: 0;
@@ -45,19 +126,16 @@
         }
         .progress-inner {
             height: 100%;
-            background-color: #07c160; /* 微信原生绿色 */
+            background-color: #07c160;
             width: 0;
-            /* 2秒加载动画：缓慢平滑向前推进，带渐变消失拖尾 */
             animation: 
                 progress 1.6s ease-out forwards,
                 fadeOutTrail 0.4s 1.6s ease-out forwards;
         }
-        /* 进度条推进动画 */
         @keyframes progress {
             0% { width: 0; }
             100% { width: 100%; }
         }
-        /* 渐变消失拖尾动画 */
         @keyframes fadeOutTrail {
             0% { 
                 opacity: 1;
@@ -80,6 +158,13 @@
 <body>
     <div id="scanner">
         <video id="video" autoplay playsinline></video>
+        <!-- 扫描框和动画元素 -->
+        <div class="scan-mask"></div>
+        <div class="scan-frame">
+            <span></span>
+            <div class="scan-line"></div>
+        </div>
+        <div class="qr-marker" id="qrMarker"></div>
     </div>
 
     <div id="loading">
@@ -89,7 +174,6 @@
     </div>
 
     <div class="container" style="display: none;">
-        <!-- 原有签到界面内容保持不变 -->
         <h1 class="title">预约签到</h1>
         
         <div class="main-info-section">
@@ -139,20 +223,31 @@
             const loading = document.getElementById('loading');
             const container = document.querySelector('.container');
             const video = document.getElementById('video');
-            
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-                .then(function(stream) {
-                    video.srcObject = stream;
-                    video.play();
-                    requestAnimationFrame(tick);
-                })
-                .catch(function(err) {
-                    alert('请允许相机权限以继续操作：' + err);
-                });
+            const qrMarker = document.getElementById('qrMarker');
+            let isProcessing = false;
+
+            // 调整相机参数，避免过度放大
+            navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    facingMode: 'environment',
+                    width: { ideal: window.innerWidth },
+                    height: { ideal: window.innerHeight },
+                    zoom: { ideal: 1.0 } // 强制1倍缩放
+                } 
+            })
+            .then(function(stream) {
+                video.srcObject = stream;
+                video.play();
+                requestAnimationFrame(tick);
+            })
+            .catch(function(err) {
+                alert('请允许相机权限以继续操作：' + err);
+            });
             
             function tick() {
-                if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                if (video.readyState === video.HAVE_ENOUGH_DATA && !isProcessing) {
                     const canvas = document.createElement('canvas');
+                    // 保持视频原始比例
                     canvas.width = video.videoWidth;
                     canvas.height = video.videoHeight;
                     const ctx = canvas.getContext('2d');
@@ -164,24 +259,40 @@
                     });
                     
                     if (code) {
-                        video.srcObject.getTracks().forEach(track => track.stop());
-                        scanner.style.display = 'none';
-                        loading.style.display = 'block';
+                        isProcessing = true; // 防止重复识别
+                        // 计算二维码在屏幕上的位置并标记
+                        const rect = video.getBoundingClientRect();
+                        const scaleX = rect.width / video.videoWidth;
+                        const scaleY = rect.height / video.videoHeight;
                         
-                        // 2秒后跳转（与动画时长同步）
+                        qrMarker.style.left = `${rect.left + code.location.topLeftCorner.x * scaleX}px`;
+                        qrMarker.style.top = `${rect.top + code.location.topLeftCorner.y * scaleY}px`;
+                        qrMarker.style.width = `${code.location.bottomRightCorner.x * scaleX - code.location.topLeftCorner.x * scaleX}px`;
+                        qrMarker.style.height = `${code.location.bottomRightCorner.y * scaleY - code.location.topLeftCorner.y * scaleY}px`;
+                        qrMarker.style.display = 'block';
+                        
+                        // 标记显示0.5秒后进入加载
                         setTimeout(() => {
-                            loading.style.display = 'none';
-                            container.style.display = 'block';
-                            startDateTimeUpdate();
-                            updateAppointmentTime();
-                        }, 2000);
+                            video.srcObject.getTracks().forEach(track => track.stop());
+                            scanner.style.display = 'none';
+                            loading.style.display = 'block';
+                            
+                            setTimeout(() => {
+                                loading.style.display = 'none';
+                                container.style.display = 'block';
+                                startDateTimeUpdate();
+                                updateAppointmentTime();
+                            }, 2000);
+                        }, 500);
                     }
                 }
-                requestAnimationFrame(tick);
+                if (!isProcessing) {
+                    requestAnimationFrame(tick);
+                }
             }
         });
 
-        // 时间更新和预约时段逻辑（保持不变）
+        // 时间更新和预约时段逻辑
         function updateDateTime() {
             const now = new Date();
 
