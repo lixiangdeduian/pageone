@@ -2,34 +2,35 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>扫码签到</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <style>
-        /* 全屏扫码样式（无文字、无多余界面） */
+        /* 全屏无黑边相机样式 */
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
         #scanner {
-            position: fixed;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
-            background-color: #000; /* 黑色背景突出扫码区域 */
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 9999;
+            background-color: #000;
         }
         #video {
             width: 100%;
-            max-width: 100vw;
-            max-height: 100vh;
-            object-fit: contain;
+            height: 100%;
+            object-fit: cover;
         }
     </style>
 </head>
 <body>
-    <!-- 全屏扫码界面 -->
+    <!-- 全屏相机扫码界面 -->
     <div id="scanner">
         <video id="video" autoplay playsinline></video>
     </div>
@@ -63,7 +64,7 @@
                 <span class="label">预约资源：</span>
                 <span class="value">南校区健身房</span>
             </div>
-            <div class="info-item">
+            <div class="info-item" id="appointment-time">
                  <span class="label">预约时段：</span>
                  <span class="value">20:00-21:30</span>
              </div>
@@ -116,6 +117,7 @@
                         scanner.style.display = 'none';
                         container.style.display = 'block';
                         startDateTimeUpdate();
+                        updateAppointmentTime(); // 更新预约时段
                     }
                 }
                 requestAnimationFrame(tick);
@@ -148,6 +150,23 @@
         function startDateTimeUpdate() {
             updateDateTime();
             setInterval(updateDateTime, 1000);
+        }
+
+        // 根据时间自动切换预约时段
+        function updateAppointmentTime() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const totalMinutes = hours * 60 + minutes;
+            const timeElement = document.querySelector('#appointment-time .value');
+
+            if (totalMinutes >= 0 && totalMinutes <= 17*60+30) {
+                timeElement.textContent = '16:30-18:00';
+            } else if (totalMinutes >= 17*60+31 && totalMinutes <= 19*60) {
+                timeElement.textContent = '18:20-19:50';
+            } else {
+                timeElement.textContent = '20:00-21:30';
+            }
         }
 
         // 原按钮和加载动画逻辑
